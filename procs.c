@@ -9,23 +9,37 @@
 #include <sys/mman.h>
 #include <stdlib.h>
 
+/*char remove_vogal(char ent[]){
+    char conso[20]
+    int j = 0;
+    for(i=0;i<strlen(ent);i++){
+        if(ent[i]!='a'&&ent[i]!='e'
+        &&ent[i]!='i'&& ent[i]!='o'
+        &&ent[i]!='u'&&ent[i]!='A'
+        &&ent[i]!= 'E'&&ent[i]!='I'
+        &&ent[i]!='O'&&ent[i]!='U'){
+            conso[j]=ent[i];
+            j++;
+        }
+        return conso;
+    }
+}*/
 //usando esta função eu posso compartilhar variaveis entre os processos
-void* create_shared_memory(size_t size) {
+/*void* create_shared_memory(size_t size) {
     int protection = PROT_READ | PROT_WRITE;
     int visibility = MAP_SHARED | MAP_ANONYMOUS;
     return mmap(NULL, size, protection, visibility, -1, 0);
-}
+}*/
 
 int main(int argc, char argv[]){
-    int i=0,j=0,*tam,segid;
+    int i=0,j=0,status;
     char ent[20];
-    tam = create_shared_memory(sizeof *tam);
     
     scanf("%s",ent);
 
-    char *minus = create_shared_memory(sizeof ent),
-         *maius = create_shared_memory(sizeof ent),
-         *conso = create_shared_memory(sizeof ent);
+    char minus[20],
+         maius[20],
+         conso[20];
 
     pid_t fok1,fok2,fok3 = 1;
     fok1 = fork();
@@ -40,7 +54,8 @@ int main(int argc, char argv[]){
     */
 
     if(fok2 == 0 && fok1 == 0){ // o 1005 pega o tamanho
-        *tam = strlen(ent);
+        exit(strlen(ent));
+
     }
 
     if(fok2 == 0 && fok1 > 0){ // 1002
@@ -61,6 +76,7 @@ int main(int argc, char argv[]){
                             j++;
                         }
                     }
+                    exit(maius);
                     break;
                 case 1:
                     //aqui removo os char maiusculos
@@ -71,6 +87,7 @@ int main(int argc, char argv[]){
                             j++;
                         }
                     }
+                    exit(minus);
                     break;
                 case 2:
                     j = 0;
@@ -84,6 +101,7 @@ int main(int argc, char argv[]){
                             j++;
                         }
                     }
+                    exit(conso);
                     break;
                 default:
                     printf("isto não pode acontecer\n");
