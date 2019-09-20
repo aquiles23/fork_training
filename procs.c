@@ -41,7 +41,7 @@ int main(int argc, char argv[]){
          maius[20],
          conso[20];
 
-    pid_t fok1,fok2,fok3 = 1;
+    pid_t fok1,fok2,fok3[3] = {1,1,1};
     fok1 = fork();
     fok2 = fork();
     /* meus processos(ids hipotéticos) tem essa hierarquia a partir deste ponto:
@@ -58,13 +58,18 @@ int main(int argc, char argv[]){
 
     }
 
+    if(fok2 > 0 && fok1 == 0){ // o 1003 lança o sinal para o pai
+        wait(&status);
+        exit(WEXITSTATUS(status));
+    }
+
     if(fok2 == 0 && fok1 > 0){ // 1002
+        pause();
         for(i=0;i<3;i++){
             
-            if(fok3 > 0) // 1002
-                
-                fok3 = fork();
-            if (fok3 == 0){
+            if(fok3[i] > 0) // 1002
+                fok3[i] = fork();
+            if (fok3[i] == 0){
                 switch (i)
                 {
                 case 0:
@@ -79,6 +84,7 @@ int main(int argc, char argv[]){
                     exit(maius);
                     break;
                 case 1:
+                    pause();
                     //aqui removo os char maiusculos
                     j = 0;
                     for(i=0;i<strlen(ent);i++){
@@ -90,6 +96,7 @@ int main(int argc, char argv[]){
                     exit(minus);
                     break;
                 case 2:
+                    pause();
                     j = 0;
                     for(i=0;i<strlen(ent);i++){
                         if(ent[i]!='a'&&ent[i]!='e'
@@ -107,7 +114,10 @@ int main(int argc, char argv[]){
                     printf("isto não pode acontecer\n");
                     break;
                 }
+                
             }
+            if(i <2)
+                kill(fok3[i+1],SIGUSR1);
         }
     }
     /* meus processos(ids hipotéticos) tem essa hierarquia a partir deste ponto:
@@ -119,11 +129,10 @@ int main(int argc, char argv[]){
 
     */
 
-    if(fok2 > 0 && fok1 > 0 && fok3>0){ //  1001
+    if(fok2 > 0 && fok1 > 0){ //  1001
         //faz o 1001 esperar para que não morra antes dos outros.
-        sleep(3);
-        //wait(NULL);
-        printf("tamanho da string %d\n",*tam);
+        wait(&status);
+        printf("tamanho da string %d\n",WEXITSTATUS(status));
         printf("a string %s sem char maiusculo resulta em: %s\n",ent,minus);
         printf("a string %s sem as vogais resulta em: %s\n",ent,conso);
         printf("a string %s sem char minusculo resulta em: %s\n",ent,maius);
