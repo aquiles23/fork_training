@@ -7,7 +7,7 @@
 #include<stdlib.h>
 
 int A[2000][2000],B[2000][2000],C[2000][2000];
-
+int filho11 = 0,filho22 = 0,pai = 0;
 void product(int size_l, int size_m, int size_n,int ini){
     int k,j,i;
     /*
@@ -32,13 +32,13 @@ void product(int size_l, int size_m, int size_n,int ini){
 }
 
 void sigfi1( int sig){
-    fflush(stdout);
+    filho11++;
 }
 void sigfi2(int sig){
-    fflush(stdout);
+    filho22++;
 }
 void sigmaster(int sig){
-    fflush(stdout);
+    pai = sig;
 }
 
 int main(){
@@ -54,46 +54,49 @@ int main(){
             scanf("%d",&B[i][j]);
         }
     }
+    signal(SIGUSR1,sigfi1);
+    signal(SIGUSR2,sigfi2);
     pid_t filho1 = fork(),filho2;
     if(filho1>0) filho2 = fork();
     else if(filho1 == 0){
         product(n/2,n,n,0);
-        fflush(NULL);
         kill(getppid(),SIGUSR1);
         signal(SIGUSR1,sigmaster);
-        pause();
+        while(pai != SIGUSR1 );
 
         for(i=0;i<n/2;i++){
             for(j = 0;j<n;j++){
                 printf("%d ",C[i][j]);
+                //fflush(stdout);
             }
             printf("\n");
         }
-        return 0;
+        exit(0);
     }
     if(filho2 == 0){
         product(n,n,n,n - n/2);
-        fflush(NULL);
         kill(getppid(),SIGUSR2);
         signal(SIGUSR2,sigmaster);
-        pause();
+        
+        while(pai != SIGUSR2);
         
         for(i=n - n/2;i<n;i++){
             for(j = 0;j<n;j++){
                 printf("%d ",C[i][j]);
+                //fflush(stdout);
             }
             printf("\n");
         }
-        return 0;
+        exit(0);
     }
     if (filho1>0)
     {
-        signal(SIGUSR1,sigfi1);
-        pause();
-        signal(SIGUSR2,sigfi2);
-        pause();
+        
+        while(filho11 !=1 );
         kill(filho1,SIGUSR1);
         wait(0);
+        while(filho22 !=1 );
+        
         kill(filho2,SIGUSR2);
         wait(0);
     }
