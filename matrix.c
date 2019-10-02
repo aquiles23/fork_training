@@ -7,7 +7,7 @@
 #include<stdlib.h>
 
 int A[2000][2000],B[2000][2000],C[2000][2000];
-int filho11 = 0,filho22 = 0,pai = 0;
+int filho11 = 0,filho22 = 0,pai = 0,n;
 void product(int size_l, int size_m, int size_n,int ini){
     int k,j,i;
     /*
@@ -31,18 +31,22 @@ void product(int size_l, int size_m, int size_n,int ini){
     }
 }
 
-void sigfi1( int sig){
-    filho11++;
-}
+
 void sigfi2(int sig){
-    filho22++;
-}
-void sigmaster(int sig){
-    pai = sig;
+    int i,j;
+    for(i=n - n/2;i<n;i++){
+        for(j = 0;j<n;j++){
+            printf("%d ",C[i][j]);
+            //fflush(stdout);
+        }
+        printf("\n");
+    }
+    exit(0);
 }
 
+
 int main(){
-    int n,i,j,k;
+    int i,j,k,sig,status;
     scanf("%d",&n);
     for(i=0;i<n;i++){
         for(j = 0;j<n;j++){
@@ -54,15 +58,18 @@ int main(){
             scanf("%d",&B[i][j]);
         }
     }
-    signal(SIGUSR1,sigfi1);
+    //signal(SIGUSR1,sigfi1);
     signal(SIGUSR2,sigfi2);
     pid_t filho1 = fork(),filho2;
     if(filho1>0) filho2 = fork();
     else if(filho1 == 0){
         product(n/2,n,n,0);
-        kill(getppid(),SIGUSR1);
-        signal(SIGUSR1,sigmaster);
-        while(pai != SIGUSR1 );
+        //signal(SIGUSR1,sigmaster);
+        //kill(getppid(),SIGUSR1);
+        //sigwait(&usr1,&sig);
+        //pause();
+        //printf("filho depois do usr1\n");
+        //while(pai != SIGUSR1 );
 
         for(i=0;i<n/2;i++){
             for(j = 0;j<n;j++){
@@ -75,30 +82,32 @@ int main(){
     }
     if(filho2 == 0){
         product(n,n,n,n - n/2);
-        kill(getppid(),SIGUSR2);
-        signal(SIGUSR2,sigmaster);
+        //signal(SIGUSR1,cont);
+        //kill(getppid(),SIGUSR2);
+        //sigwait(&usr2,&sig);
+        //printf("filho depois do usr2\n");
+        pause();
+        //while(pai != SIGUSR2);
         
-        while(pai != SIGUSR2);
         
-        for(i=n - n/2;i<n;i++){
-            for(j = 0;j<n;j++){
-                printf("%d ",C[i][j]);
-                //fflush(stdout);
-            }
-            printf("\n");
-        }
         exit(0);
     }
     if (filho1>0)
     {
         
-        while(filho11 !=1 );
-        kill(filho1,SIGUSR1);
-        wait(0);
-        while(filho22 !=1 );
-        
+        //while(filho11 !=1 );
+        //pause();
+        //sigwait(&usr1,&sig);
+        //printf("pai depois do usr1\n");
+        //kill(filho1,SIGUSR1);
+        //while(filho22 !=1 );
+        //pause();
+        waitpid(filho1,0,0);
+        //printf("pai depois do usr2\n");
         kill(filho2,SIGUSR2);
+        
         wait(0);
+
     }
     
     return 0;
