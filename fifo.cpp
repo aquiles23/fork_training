@@ -1,10 +1,11 @@
 #include <bits/stdc++.h>
 using namespace std;
 int main(){
+    //freopen("input.txt","r",stdin);
     list <int> fifo;
     vector <pair<int,int>> frame_fault;
     int n,pag,quadro,cont = 0,fault = 0;
-    bool isfault = true,belady;
+    bool isfault = true,belady = false;
     scanf("%d",&n);
     vector <int> pags(n);
     for(int i=0;i<n;i++){
@@ -42,15 +43,19 @@ int main(){
         cont = 0;
         fifo.clear();
     }
-
+    sort(frame_fault.begin(),frame_fault.end());
+    for(int i = 1;i<frame_fault.size();i++){
+        if(frame_fault[i].second > frame_fault[i - 1].second){
+            belady =  true;
+        }
+    }
+    if(belady){
+        printf("Belady detectado\n");
+    }
+    else{
+        printf("Sem anomalia\n");
+    }
+    //fclose(stdin);
     return 0;
     
 }
-
-/*
-   1 2 3 4 1 2 5 1 2 3 4 5
- 0 1 1 1 4 4 4 5 5 5 5 5 5 
- 1   2 2 2 1 1 1 1 1 3 3 3
- 2     3 3 3 2 2 2 2 2 4 4
-         x x x x     x x
-*/
